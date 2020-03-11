@@ -30,7 +30,7 @@ class ShipNode : SCNNode {
         let v_rearRightWheel = SCNPhysicsVehicleWheel(node: rearLeftWheel)
         let v_rearLeftWheel = SCNPhysicsVehicleWheel(node: rearRightWheel)
         
-        chassis.position = SCNVector3(0,0,0)
+        chassis.position = SCNVector3(0,0,-2)
 //        chassis.eulerAngles.y = directionAngle
         let body = SCNPhysicsBody(type: .dynamic, shape: SCNPhysicsShape(node: chassis, options: [SCNPhysicsShape.Option.collisionMargin: true]))
         body.mass = 1

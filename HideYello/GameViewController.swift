@@ -16,6 +16,11 @@ class GameViewController: UIViewController {
     var gameView: GameView {
         return view as! GameView
     }
+    var engineForce: CGFloat = 0
+    var brakingForce: CGFloat = 0
+    var steearingAngle: CGFloat = 0
+    var changedX:Float = 0
+    var vehicle = SCNPhysicsVehicle()
     
     var speedButtonUp:UIButton!
     var speedButtonDown:UIButton!
@@ -23,7 +28,7 @@ class GameViewController: UIViewController {
     var bombs = [Bomb]()
     var bullets = [BulletNode]()
     var timer: Timer?
-    var ship: ShipNode!
+    var ship: SCNNode!
     var cameraNode = CameraNode()
     var lightNode = LightNode()
     var floorNode: FloorNode!
@@ -94,9 +99,10 @@ class GameViewController: UIViewController {
         scene.rootNode.addChildNode(floorNode)
         scene.rootNode.addChildNode(cameraNode)
         scene.rootNode.addChildNode(lightNode)
-        ship = ShipNode()
-        scene.rootNode.addChildNode(ship)
-        scene.physicsWorld.addBehavior(ship.vehicle)
+//        ship = ShipNode()
+        ship = self.setupVehicle(scene)
+//        scene.rootNode.addChildNode(ship)
+        scene.physicsWorld.addBehavior(vehicle)
         let button = UIButton(frame: CGRect(x: self.view.frame.maxX - 85, y: self.view.frame.maxY - 105, width: 68, height: 68))
         button.contentMode = .scaleAspectFit
         button.layer.cornerRadius = button.frame.size.height / 2
@@ -286,23 +292,25 @@ class GameViewController: UIViewController {
     }
     @objc
     func touchDownRepeat(_ sender: UIButton) {
-        createBulletandFire()
+//        createBulletandFire()
+        self.brakingForce = 5
+        self.engineForce = 0
     }
     @objc
     func touchDownSpeed(_ sender: UIButton) {
         guard let speed = sender.titleLabel?.text else { return }
         
         if speed == "Up" {
-            ship.engineForce = 5
+            self.engineForce += 20
             guard gear != 4 else { return }
             gear = gear + 1
-            ship.speed = 0.3 * gear
+//            ship.speed = 0.3 * gear
             target.speed = 0.3 * gear
         } else {
-            ship.engineForce = 0
+            self.engineForce -= 20
             guard gear != 0 else { return }
             gear = gear - 1
-            ship.speed = 0.3 * gear
+//            ship.speed = 0.3 * gear
             target.speed = 0.3 * gear
         }
          print("\(gear)")
@@ -405,15 +413,32 @@ extension GameViewController {
     // store touch in global scope
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
         touch = touches.first
+//        if let touch = touch {
+//            let touchLocation = touch.location(in: self.view)
+//
+//            if gameView.virtualDPad().contains(touchLocation) {
+//                ship.steearingAngle = -2
+//            } else if gameView.virtualDPadRight().contains(touchLocation) {
+//                ship.steearingAngle = 2
+//            }
+//        }
     }
 
     override func touchesMoved(_ touches: Set<UITouch>, with event: UIEvent?) {
-
+//        if let touch = touch {
+//            let touchLocation = touch.location(in: self.view)
+//            if gameView.virtualDPad().contains(touchLocation) {
+//                ship.steearingAngle -= 0.02
+//            } else if gameView.virtualDPadRight().contains(touchLocation) {
+//                ship.steearingAngle += 0.02
+//            }
+//        }
+        
         if let touch = touch {
 
             // check whether our touch is within our dpad
             let touchLocation = touch.location(in: self.view)
-            
+
             if gameView.virtualDPad().contains(touchLocation) {
 
                 let middleOfCircleX = gameView.virtualDPad().origin.x + 75
@@ -425,14 +450,19 @@ extension GameViewController {
                 direction = normalize(direction)
 
                 let degree = atan2(direction.x, direction.y)
-                ship.directionAngle = degree
+//                ship.directionAngle = degree
                 target.directionAngle = degree
-                ship.steearingAngle = CGFloat(degree)
-                let oppositex = (fireDistance - 1) * tan(degree)
-                target.position.x = (oppositex * ship.speed + ship.position.x + direction.x)
-                lastUpdatedX = oppositex
+                if degree < 0.5 && degree > -0.5 {
+                    self.steearingAngle = CGFloat(degree)
+                }
+//                let oppositex = (fireDistance - 1) * tan(degree)
+//                target.position.x = (oppositex * ship.speed + ship.position.x + direction.x)
+//                lastUpdatedX = oppositex
             }
         }
+    }
+    override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
+        self.steearingAngle = 0
     }
 }
 
@@ -441,38 +471,94 @@ extension GameViewController: SCNSceneRendererDelegate {
         
 
         // here you can manipulate your car steering angle
-        self.ship.vehicle.setSteeringAngle(ship.steearingAngle, forWheelAt: 2)
-        self.ship.vehicle.setSteeringAngle(ship.steearingAngle, forWheelAt: 3)
+        self.vehicle.setSteeringAngle(steearingAngle, forWheelAt: 0)
+        self.vehicle.setSteeringAngle(steearingAngle, forWheelAt: 1)
 
 
-        self.ship.vehicle.applyEngineForce(ship.engineForce, forWheelAt: 0)
-        self.ship.vehicle.applyEngineForce(ship.engineForce, forWheelAt: 1)
-        self.ship.vehicle.applyBrakingForce(ship.brakingForce, forWheelAt: 0)
-        self.ship.vehicle.applyBrakingForce(ship.brakingForce, forWheelAt: 1)
+        self.vehicle.applyEngineForce(engineForce, forWheelAt: 2)
+        self.vehicle.applyEngineForce(engineForce, forWheelAt: 3)
+        self.vehicle.applyBrakingForce(brakingForce, forWheelAt: 2)
+        self.vehicle.applyBrakingForce(brakingForce, forWheelAt: 3)
+        let cameraDamping: CGFloat = 0.3
+        let car = ship.presentation
+        let carPos = car.position
+        let targetPos = vector_float3(carPos.x, Float(12), carPos.z + 12)
+        var cameraPos = vector_float3(cameraNode.position)
+        cameraPos = mix(cameraPos, targetPos, t: Float(cameraDamping))
+        cameraNode.position = SCNVector3(cameraPos)
+    }
+    private func setupVehicle(_ scene: SCNScene) -> SCNNode {
+        let carScene = SCNScene(named: "art.scnassets/rc_car.scn")!
+        let chassisNode = carScene.rootNode.childNode(withName: "rccarBody", recursively: false)
+        
+        // setup the chassis
+        chassisNode!.position = SCNVector3Make(0, 5, 20)
+        chassisNode!.rotation = SCNVector4Make(0, 1, 0, .pi)
+        
+        let body = SCNPhysicsBody.dynamic()
+        body.allowsResting = false
+        body.mass = 80
+        body.restitution = 0.1
+        body.friction = 0.5
+        body.rollingFriction = 0
+        
+        chassisNode!.physicsBody = body
+        scene.rootNode.addChildNode(chassisNode!)
+        
+//        let pipeNode = chassisNode!.childNode(withName: "pipe", recursively: true)
+//        _reactor = SCNParticleSystem(named: "reactor", inDirectory: nil)
+//        _reactorDefaultBirthRate = _reactor.birthRate
+//        _reactor.birthRate = 0
+//        pipeNode!.addParticleSystem(_reactor)
+        
+        //add wheels
+        let wheel0Node = chassisNode!.childNode(withName: "wheelLocator_FL", recursively: true)!
+        let wheel1Node = chassisNode!.childNode(withName: "wheelLocator_FR", recursively: true)!
+        let wheel2Node = chassisNode!.childNode(withName: "wheelLocator_RL", recursively: true)!
+        let wheel3Node = chassisNode!.childNode(withName: "wheelLocator_RR", recursively: true)!
+        
+        let wheel0 = SCNPhysicsVehicleWheel(node: wheel0Node)
+        let wheel1 = SCNPhysicsVehicleWheel(node: wheel1Node)
+        let wheel2 = SCNPhysicsVehicleWheel(node: wheel2Node)
+        let wheel3 = SCNPhysicsVehicleWheel(node: wheel3Node)
+        
+        let (min, max) = wheel0Node.boundingBox
+        let wheelHalfWidth = Float(0.5 * (max.x - min.x))
+        
+        wheel0.connectionPosition = SCNVector3(vector_float3(wheel0Node.convertPosition(SCNVector3Zero, to: chassisNode)) + vector_float3(wheelHalfWidth, 0, 0))
+        wheel1.connectionPosition = SCNVector3(vector_float3(wheel1Node.convertPosition(SCNVector3Zero, to: chassisNode)) - vector_float3(wheelHalfWidth, 0, 0))
+        wheel2.connectionPosition = SCNVector3(vector_float3(wheel2Node.convertPosition(SCNVector3Zero, to: chassisNode)) + vector_float3(wheelHalfWidth, 0, 0))
+        wheel3.connectionPosition = SCNVector3(vector_float3(wheel3Node.convertPosition(SCNVector3Zero, to: chassisNode)) - vector_float3(wheelHalfWidth, 0, 0))
+        
+        // create the physics vehicle
+        vehicle = SCNPhysicsVehicle(chassisBody: chassisNode!.physicsBody!, wheels: [wheel0, wheel1, wheel2, wheel3])
+        scene.physicsWorld.addBehavior(vehicle)
+        
+        
+        return chassisNode!
     }
     func renderer(_ renderer: SCNSceneRenderer, updateAtTime time: TimeInterval) {
-//        let directionInV3 = vector_float3(x: direction.x, y: 0, z: direction.y)
-//        ship.walkInDirection(directionInV3)
-//        cameraNode.eulerAngles.y = ship.eulerAngles.y
         
-        let shipPresentationNode = ship.presentation
-        let shipPresentationPos = shipPresentationNode.position
-        let targetPosition = SCNVector3(shipPresentationPos.x, shipPresentationPos.y + 10, shipPresentationPos.z + 10)
-        var cameraposition = cameraNode.position
-        let camDamping:Float = 0.3
-        
-        let xComponent = cameraposition.x * (1 - camDamping) + targetPosition.x * camDamping
-        let yComponent = cameraposition.y * (1 - camDamping) + targetPosition.y * camDamping
-        let zComponent = cameraposition.z * (1 - camDamping) + targetPosition.z * camDamping
-        cameraposition = SCNVector3(xComponent, yComponent, zComponent)
-        cameraNode.position = cameraposition
+//        let shipPresentationNode = ship.presentation
+//        let shipPresentationPos = shipPresentationNode.position
+//        let targetPosition = SCNVector3(shipPresentationPos.x, shipPresentationPos.y + 10, shipPresentationPos.z + 10)
+//        var cameraposition = cameraNode.position
+//        let camDamping:Float = 0.3
+//
+//        let xComponent = cameraposition.x * (1 - camDamping) + targetPosition.x * camDamping
+//        let yComponent = cameraposition.y * (1 - camDamping) + targetPosition.y * camDamping
+//        let zComponent = cameraposition.z * (1 - camDamping) + targetPosition.z * camDamping
+//        cameraposition = SCNVector3(xComponent, yComponent, zComponent)
+//        cameraNode.position = cameraposition
 //        let vector = target.walkInDirection(directionInV3)
 //        let oppositex = (fireDistance - 1) * tan(ship.directionAngle)
 //        target.position.x = (oppositex * ship.speed + ship.presentation.position.x + direction.x)
 //        target.position.y = vector.y
 //        target.position.z = vector.z
-        // cameraNode.position.x = ship.presentation.position.x
-        // cameraNode.position.z = ship.presentation.position.z + CameraNode.offset
+//        let car = ship.childNode(withName: "wheelLocator_FL", recursively: true)!
+//        cameraNode.position.x = ship.vehicle.chassisBody.velocity.x
+//         cameraNode.position.z = ship.vehicle.chassisBody.velocity.z + CameraNode.offset
+//        print(ship.vehicle.chassisBody.velocity)
         let distance = ship.position - startPoint
         let length = distance.length / 100
         ScoreBoard.shared.totalKm = length
@@ -494,7 +580,7 @@ extension GameViewController: SCNPhysicsContactDelegate {
                         if self.gameView.bombremains > 0 {
                             ScoreBoard.shared.delegate.didUpdateBomb()
                         } else {
-                            self.ship.speed = 0
+//                            self.ship.speed = 0
                             self.target.speed = 0
                             self.gear = 0
                             self.GameOver()
