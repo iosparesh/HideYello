@@ -9,20 +9,42 @@
 import SceneKit
 
 class ShipNode : SCNNode {
+    var engineForce: CGFloat = 0
+    var brakingForce: CGFloat = 0
+    var steearingAngle: CGFloat = 0
     var changedX:Float = 0
+    var vehicle = SCNPhysicsVehicle()
     override init() {
         super.init()
-        let scene = SCNScene(named: "art.scnassets/ship.scn")!
-        let ship = scene.rootNode.childNode(withName: "shipMesh", recursively: true)!
-        self.addChildNode(ship)
-        changedX = ship.position.x
+        let scene = SCNScene(named: "art.scnassets/rc_car.scn")!
+        let chassis = scene.rootNode.childNode(withName: "rccarBody", recursively: true)!
+        let frontLeftWheel = chassis.childNode(withName: "wheelLocator_FL", recursively: true)!
+        let frontRightWheel = chassis.childNode(withName: "wheelLocator_FR", recursively: true)!
+        let rearLeftWheel = chassis.childNode(withName: "wheelLocator_RL", recursively: true)!
+        let rearRightWheel = chassis.childNode(withName: "wheelLocator_RR", recursively: true)!
+
+        // physic behavior for wheels
+
+        let v_frontLeftWheel = SCNPhysicsVehicleWheel(node: frontLeftWheel)
+        let v_frontRightWheel = SCNPhysicsVehicleWheel(node: frontRightWheel)
+        let v_rearRightWheel = SCNPhysicsVehicleWheel(node: rearLeftWheel)
+        let v_rearLeftWheel = SCNPhysicsVehicleWheel(node: rearRightWheel)
+        
+        chassis.position = SCNVector3(0,0,0)
+//        chassis.eulerAngles.y = directionAngle
+        let body = SCNPhysicsBody(type: .dynamic, shape: SCNPhysicsShape(node: chassis, options: [SCNPhysicsShape.Option.collisionMargin: true]))
+        body.mass = 1
+        chassis.physicsBody = body
+        self.vehicle = SCNPhysicsVehicle(chassisBody: chassis.physicsBody!, wheels: [v_rearRightWheel, v_rearLeftWheel, v_frontRightWheel, v_frontLeftWheel])
+        self.addChildNode(chassis)
+        changedX = chassis.position.x
         physicsBody?.angularVelocityFactor = SCNVector3Zero
 //        physicsBody?.contactTestBitMask = 3
-        physicsBody = SCNPhysicsBody(type: .dynamic, shape: nil)
-        physicsBody?.categoryBitMask = 2
-        physicsBody?.collisionBitMask = 1
-        physicsBody?.mass = 5
-        physicsBody?.isAffectedByGravity =  false
+//        physicsBody = SCNPhysicsBody(type: .dynamic, shape: nil)
+        physicsBody?.categoryBitMask = 1
+        physicsBody?.collisionBitMask = 6
+//        physicsBody?.mass = 5
+        physicsBody?.isAffectedByGravity =  true
     }
 
     required init?(coder aDecoder: NSCoder) {
@@ -48,7 +70,8 @@ class ShipNode : SCNNode {
 
     func walkInDirection(_ direction: vector_float3) {
         let currentPosition = vector_float3(position)
-        position = SCNVector3(currentPosition + direction * speed)
+//        position = SCNVector3(currentPosition + direction * speed)
+        rotation = SCNVector4(direction.x, direction.y, direction.z, 0)
     }
     
 }

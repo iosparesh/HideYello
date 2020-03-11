@@ -20,9 +20,11 @@ final class FloorNode: SCNNode {
         floorGeometry.firstMaterial?.diffuse.contentsTransform = SCNMatrix4MakeScale(25, 25, 25)
         
         let floorShape = SCNPhysicsShape(geometry: floorGeometry, options: nil)
-        let floorBody = SCNPhysicsBody(type: .kinematic, shape: floorShape)
+        let floorBody = SCNPhysicsBody(type: .static, shape: floorShape)
 
         physicsBody = floorBody
+        physicsBody?.categoryBitMask = 4
+        physicsBody?.collisionBitMask = 1
         geometry = floorGeometry
 
     }

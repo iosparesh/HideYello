@@ -23,7 +23,7 @@ class GameViewController: UIViewController {
     var bombs = [Bomb]()
     var bullets = [BulletNode]()
     var timer: Timer?
-    var ship = ShipNode()
+    var ship: ShipNode!
     var cameraNode = CameraNode()
     var lightNode = LightNode()
     var floorNode: FloorNode!
@@ -40,6 +40,20 @@ class GameViewController: UIViewController {
     var target: TargetNode!
     var lastWidthRatio:Float = 0
     var previousTranslation:CGPoint = .zero
+
+    //HANDLE PAN CAMERA
+    var lastWRation: Float = 0
+    var lastHeightRatio: Float = 0.2
+    var fingersNeededToPan = 1
+    var maxWidthRatioRight: Float = 0.2
+    var maxWidthRatioLeft: Float = -0.2
+    var maxHeightRatioXDown: Float = 0.02
+    var maxHeightRatioXUp: Float = 0.4
+    
+    //HANDLE PINCH CAMERA
+    var pinchAttenuation = 20.0  //1.0: very fast ---- 100.0 very slow
+    var lastFingersNumber = 0
+    
 //    var bulletNode:BulletNode!
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -80,8 +94,9 @@ class GameViewController: UIViewController {
         scene.rootNode.addChildNode(floorNode)
         scene.rootNode.addChildNode(cameraNode)
         scene.rootNode.addChildNode(lightNode)
-        ship.position = SCNVector3(0,4.0,0)
+        ship = ShipNode()
         scene.rootNode.addChildNode(ship)
+        scene.physicsWorld.addBehavior(ship.vehicle)
         let button = UIButton(frame: CGRect(x: self.view.frame.maxX - 85, y: self.view.frame.maxY - 105, width: 68, height: 68))
         button.contentMode = .scaleAspectFit
         button.layer.cornerRadius = button.frame.size.height / 2
@@ -111,12 +126,76 @@ class GameViewController: UIViewController {
         target.position = SCNVector3(ship.position.x, ship.position.y, ship.position.z + fireDistance)
         lastUpdatedX = target.position.x
         scene.rootNode.addChildNode(target)
-        let sceneplane = SCNScene(named: "art.scnassets/ship.scn")!
-        emetter = sceneplane.rootNode.childNode(withName: "shipMesh", recursively: true)
+        //let sceneplane = SCNScene(named: "art.scnassets/ship.scn")!
+        //emetter = sceneplane.rootNode.childNode(withName: "shipMesh", recursively: true)
         startPoint = ship.position
-//        let panGesture = UIPanGestureRecognizer(target: self, action: #selector(pan))
-//        gameView.addGestureRecognizer()
+//        let panGesture = UIPanGestureRecognizer(target: self, action: #selector(handlePanGes))
+//        gameView.addGestureRecognizer(panGesture)
     }
+    @objc func handlePanGes(gestureRecognize: UIPanGestureRecognizer) {
+
+        let numberOfTouches = gestureRecognize.numberOfTouches
+
+        let translation = gestureRecognize.translation(in: gestureRecognize.view!)
+        var widthRatio = Float(translation.x) / Float(gestureRecognize.view!.frame.size.width) + lastWRation
+        var heightRatio = Float(translation.y) / Float(gestureRecognize.view!.frame.size.height) + lastHeightRatio
+
+        if (numberOfTouches==fingersNeededToPan) {
+
+            //  HEIGHT constraints
+            if (heightRatio >= maxHeightRatioXUp ) {
+                heightRatio = maxHeightRatioXUp
+            }
+            if (heightRatio <= maxHeightRatioXDown ) {
+                heightRatio = maxHeightRatioXDown
+            }
+
+
+            //  WIDTH constraints
+            if(widthRatio >= maxWidthRatioRight) {
+                widthRatio = maxWidthRatioRight
+            }
+            if(widthRatio <= maxWidthRatioLeft) {
+                widthRatio = maxWidthRatioLeft
+            }
+
+            self.cameraNode.eulerAngles.y = Float(-2 * M_PI) * widthRatio
+            self.cameraNode.eulerAngles.x = Float(-M_PI) * heightRatio
+
+            print("Height: \(round(heightRatio*100))")
+            print("Width: \(round(widthRatio*100))")
+
+
+            //for final check on fingers number
+            lastFingersNumber = fingersNeededToPan
+        }
+
+        lastFingersNumber = (numberOfTouches>0 ? numberOfTouches : lastFingersNumber)
+
+        if (gestureRecognize.state == .ended && lastFingersNumber==fingersNeededToPan) {
+            lastWRation = widthRatio
+            lastHeightRatio = heightRatio
+            print("Pan with \(lastFingersNumber) finger\(lastFingersNumber>1 ? "s" : "")")
+        }
+    }
+
+    func handlePinchGes(gestureRecognize: UIPinchGestureRecognizer) {
+        let pinchVelocity = Double.init(gestureRecognize.velocity)
+        //print("PinchVelocity \(pinchVelocity)")
+
+        cameraNode.camera!.orthographicScale -= (pinchVelocity/pinchAttenuation)
+
+        if cameraNode.camera!.orthographicScale <= 0.5 {
+            cameraNode.camera!.orthographicScale = 0.5
+        }
+
+        if cameraNode.camera!.orthographicScale >= 10.0 {
+            cameraNode.camera!.orthographicScale = 10.0
+        }
+
+    }
+    
+    
        @objc func pan(gesture: UIPanGestureRecognizer) {
            gesture.minimumNumberOfTouches = 1
            gesture.maximumNumberOfTouches = 1
@@ -214,12 +293,13 @@ class GameViewController: UIViewController {
         guard let speed = sender.titleLabel?.text else { return }
         
         if speed == "Up" {
-            
+            ship.engineForce = 5
             guard gear != 4 else { return }
             gear = gear + 1
             ship.speed = 0.3 * gear
             target.speed = 0.3 * gear
         } else {
+            ship.engineForce = 0
             guard gear != 0 else { return }
             gear = gear - 1
             ship.speed = 0.3 * gear
@@ -347,6 +427,7 @@ extension GameViewController {
                 let degree = atan2(direction.x, direction.y)
                 ship.directionAngle = degree
                 target.directionAngle = degree
+                ship.steearingAngle = CGFloat(degree)
                 let oppositex = (fireDistance - 1) * tan(degree)
                 target.position.x = (oppositex * ship.speed + ship.position.x + direction.x)
                 lastUpdatedX = oppositex
@@ -356,9 +437,23 @@ extension GameViewController {
 }
 
 extension GameViewController: SCNSceneRendererDelegate {
+    func renderer(_ renderer: SCNSceneRenderer, didSimulatePhysicsAtTime time: TimeInterval) {
+        
+
+        // here you can manipulate your car steering angle
+        self.ship.vehicle.setSteeringAngle(ship.steearingAngle, forWheelAt: 2)
+        self.ship.vehicle.setSteeringAngle(ship.steearingAngle, forWheelAt: 3)
+
+
+        self.ship.vehicle.applyEngineForce(ship.engineForce, forWheelAt: 0)
+        self.ship.vehicle.applyEngineForce(ship.engineForce, forWheelAt: 1)
+        self.ship.vehicle.applyBrakingForce(ship.brakingForce, forWheelAt: 0)
+        self.ship.vehicle.applyBrakingForce(ship.brakingForce, forWheelAt: 1)
+    }
     func renderer(_ renderer: SCNSceneRenderer, updateAtTime time: TimeInterval) {
-        let directionInV3 = vector_float3(x: direction.x, y: 0, z: direction.y)
-        ship.walkInDirection(directionInV3)
+//        let directionInV3 = vector_float3(x: direction.x, y: 0, z: direction.y)
+//        ship.walkInDirection(directionInV3)
+//        cameraNode.eulerAngles.y = ship.eulerAngles.y
         
         let shipPresentationNode = ship.presentation
         let shipPresentationPos = shipPresentationNode.position
@@ -371,12 +466,11 @@ extension GameViewController: SCNSceneRendererDelegate {
         let zComponent = cameraposition.z * (1 - camDamping) + targetPosition.z * camDamping
         cameraposition = SCNVector3(xComponent, yComponent, zComponent)
         cameraNode.position = cameraposition
-        
-        let vector = target.walkInDirection(directionInV3)
-        let oppositex = (fireDistance - 1) * tan(ship.directionAngle)
-        target.position.x = (oppositex * ship.speed + ship.presentation.position.x + direction.x)
-        target.position.y = vector.y
-        target.position.z = vector.z
+//        let vector = target.walkInDirection(directionInV3)
+//        let oppositex = (fireDistance - 1) * tan(ship.directionAngle)
+//        target.position.x = (oppositex * ship.speed + ship.presentation.position.x + direction.x)
+//        target.position.y = vector.y
+//        target.position.z = vector.z
         // cameraNode.position.x = ship.presentation.position.x
         // cameraNode.position.z = ship.presentation.position.z + CameraNode.offset
         let distance = ship.position - startPoint

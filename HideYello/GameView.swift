@@ -28,7 +28,7 @@ final class GameView: SCNView {
         // Modify the SKScene's actual size to exactly match the SKView.
         skScene.scaleMode = .resizeFill
 
-        let dpadShape = SKShapeNode(circleOfRadius: 75)
+        let dpadShape = SKShapeNode(circleOfRadius: 30)
         dpadShape.strokeColor = .white
         dpadShape.lineWidth = 2.0
 
@@ -41,6 +41,21 @@ final class GameView: SCNView {
 
         // add the dpad shape to the sprite kit scene
         skScene.addChild(dpadShape)
+        
+        
+        let dpadShapeRight = SKShapeNode(circleOfRadius: 30)
+        dpadShapeRight.strokeColor = .white
+        dpadShapeRight.lineWidth = 2.0
+
+        // the position is initially at (0, 375) of the views coordinate system
+        // the `position` of the dpadShape is at the middle of the shape
+        // this is why we put it by the half of its width to the right
+        // with a little offset/margin of 10. Same for the height.
+        dpadShapeRight.position.x = (dpadShapeRight.frame.size.width / 2 + 10) + dpadShape.frame.size.width
+        dpadShapeRight.position.y = dpadShapeRight.frame.size.height / 2 + 10
+
+        // add the dpad shape to the sprite kit scene
+        skScene.addChild(dpadShapeRight)
 
         // disables skScene to receive touch
         // so it goes through this layer
@@ -95,9 +110,15 @@ final class GameView: SCNView {
     }
 
     func virtualDPad() -> CGRect {
-        var vDPad = CGRect(x: 0, y: 0, width: 150, height: 150)
+        var vDPad = CGRect(x: 0, y: 0, width: 60, height: 60)
         vDPad.origin.y = bounds.size.height - vDPad.size.height - 10
         vDPad.origin.x = 10
+        return vDPad
+    }
+    func virtualDPadRight() -> CGRect {
+        var vDPad = CGRect(x: 0, y: 0, width: 60, height: 60)
+        vDPad.origin.y = bounds.size.height - vDPad.size.height - 10
+        vDPad.origin.x = 10 + vDPad.size.width
         return vDPad
     }
 }

@@ -28,8 +28,8 @@ class Bomb: SCNNode {
          physicsBody = SCNPhysicsBody(type: .dynamic, shape: shape)
 //         physicsBody?.angularVelocityFactor = SCNVector3Zero
          physicsBody?.contactTestBitMask = 3
-         physicsBody?.categoryBitMask = 1
-         physicsBody?.collisionBitMask = 2
+         physicsBody?.categoryBitMask = 2
+         physicsBody?.collisionBitMask = 1
         physicsBody?.mass = 0
          physicsBody?.isAffectedByGravity =  false
     }
