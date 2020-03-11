@@ -21,7 +21,8 @@ class GameViewController: UIViewController {
     var steearingAngle: CGFloat = 0
     var changedX:Float = 0
     var vehicle = SCNPhysicsVehicle()
-    
+    private var _reactor: SCNParticleSystem!
+    private var _reactorDefaultBirthRate: CGFloat = 0.0
     var speedButtonUp:UIButton!
     var speedButtonDown:UIButton!
     var stars = [[Coin]]()
@@ -292,22 +293,31 @@ class GameViewController: UIViewController {
     }
     @objc
     func touchDownRepeat(_ sender: UIButton) {
-//        createBulletandFire()
-        self.brakingForce = 5
+        brakingForce = 100
+        _reactor.birthRate = 0
         self.engineForce = 0
+        
     }
     @objc
     func touchDownSpeed(_ sender: UIButton) {
         guard let speed = sender.titleLabel?.text else { return }
-        
+        let defaultEngineForce: CGFloat = 250.0
+        let defaultBrakingForce: CGFloat = 3.0
         if speed == "Up" {
-            self.engineForce += 20
+//            self.engineForce += 100
+            engineForce = defaultEngineForce
+            _reactor.birthRate = _reactorDefaultBirthRate
+            self.brakingForce = 100
             guard gear != 4 else { return }
             gear = gear + 1
 //            ship.speed = 0.3 * gear
             target.speed = 0.3 * gear
+            
         } else {
-            self.engineForce -= 20
+            engineForce = -defaultEngineForce
+            _reactor.birthRate = 0
+            self.brakingForce = defaultBrakingForce
+//            self.engineForce -= 100
             guard gear != 0 else { return }
             gear = gear - 1
 //            ship.speed = 0.3 * gear
@@ -505,11 +515,12 @@ extension GameViewController: SCNSceneRendererDelegate {
         chassisNode!.physicsBody = body
         scene.rootNode.addChildNode(chassisNode!)
         
-//        let pipeNode = chassisNode!.childNode(withName: "pipe", recursively: true)
-//        _reactor = SCNParticleSystem(named: "reactor", inDirectory: nil)
-//        _reactorDefaultBirthRate = _reactor.birthRate
-//        _reactor.birthRate = 0
-//        pipeNode!.addParticleSystem(_reactor)
+        let pipeNode = chassisNode!.childNode(withName: "pipe", recursively: true)
+        _reactor = SCNParticleSystem(named: "art.scnassets/reactor.scnp", inDirectory:
+        nil)!
+        _reactorDefaultBirthRate = _reactor.birthRate
+        _reactor.birthRate = 0
+        pipeNode!.addParticleSystem(_reactor)
         
         //add wheels
         let wheel0Node = chassisNode!.childNode(withName: "wheelLocator_FL", recursively: true)!
