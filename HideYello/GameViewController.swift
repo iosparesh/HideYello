@@ -244,11 +244,7 @@ class GameViewController: UIViewController {
             bullets.removeFirst()
         }
         bullets.append(bulletNode)
-//        let xPos = fireDistance * tan(ship.directionAngle) + target.position.x
-//        bulletNode.physicsBody?.applyForce(SCNVector3(xPos, target.position.y, target.position.z), asImpulse: true)
-        bulletNode.directionAngle = ship.directionAngle
-        let directionInV3 = float3(x: direction.x, y: 0, z: direction.y)
-        bulletNode.walkInDirection(directionInV3)
+        bulletNode.physicsBody?.applyForce(SCNVector3(ship.presentation.position.x, ship.presentation.position.y, ship.presentation.position.z + 25), asImpulse: true)
     }
     func createExplosion(geometry: SCNGeometry?, position: SCNVector3?,
       rotation: SCNVector4?) {
@@ -361,20 +357,33 @@ extension GameViewController {
 
 extension GameViewController: SCNSceneRendererDelegate {
     func renderer(_ renderer: SCNSceneRenderer, updateAtTime time: TimeInterval) {
-            let directionInV3 = float3(x: direction.x, y: 0, z: direction.y)
-            ship.walkInDirection(directionInV3)
-            let vector = target.walkInDirection(directionInV3)
-            let oppositex = (fireDistance - 1) * tan(ship.directionAngle)
-            target.position.x = (oppositex * ship.speed + ship.position.x + direction.x)
-            target.position.y = vector.y
-            target.position.z = vector.z
-            cameraNode.position.x = ship.presentation.position.x
-            cameraNode.position.z = ship.presentation.position.z + CameraNode.offset
-            let distance = ship.position - startPoint
-            let length = distance.length / 100
-            ScoreBoard.shared.totalKm = length
-            ScoreBoard.shared.delegate.updateKilometer(text: String(format: "%.2f", length))
-       }
+        let directionInV3 = vector_float3(x: direction.x, y: 0, z: direction.y)
+        ship.walkInDirection(directionInV3)
+        
+        let shipPresentationNode = ship.presentation
+        let shipPresentationPos = shipPresentationNode.position
+        let targetPosition = SCNVector3(shipPresentationPos.x, shipPresentationPos.y + 10, shipPresentationPos.z + 10)
+        var cameraposition = cameraNode.position
+        let camDamping:Float = 0.3
+        
+        let xComponent = cameraposition.x * (1 - camDamping) + targetPosition.x * camDamping
+        let yComponent = cameraposition.y * (1 - camDamping) + targetPosition.y * camDamping
+        let zComponent = cameraposition.z * (1 - camDamping) + targetPosition.z * camDamping
+        cameraposition = SCNVector3(xComponent, yComponent, zComponent)
+        cameraNode.position = cameraposition
+        
+        let vector = target.walkInDirection(directionInV3)
+        let oppositex = (fireDistance - 1) * tan(ship.directionAngle)
+        target.position.x = (oppositex * ship.speed + ship.presentation.position.x + direction.x)
+        target.position.y = vector.y
+        target.position.z = vector.z
+        // cameraNode.position.x = ship.presentation.position.x
+        // cameraNode.position.z = ship.presentation.position.z + CameraNode.offset
+        let distance = ship.position - startPoint
+        let length = distance.length / 100
+        ScoreBoard.shared.totalKm = length
+        ScoreBoard.shared.delegate.updateKilometer(text: String(format: "%.2f", length))
+    }
 }
 extension GameViewController: SCNPhysicsContactDelegate {
     func physicsWorld(_ world: SCNPhysicsWorld, didBegin contact: SCNPhysicsContact) {

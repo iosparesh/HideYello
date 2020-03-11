@@ -46,13 +46,9 @@ class ShipNode : SCNNode {
 
     var speed: Float = 0.3
 
-    func walkInDirection(_ direction: float3) {
-        let currentPosition = float3(position)
+    func walkInDirection(_ direction: vector_float3) {
+        let currentPosition = vector_float3(position)
         position = SCNVector3(currentPosition + direction * speed)
-//        print("Ship \(transform.m31)")
-    }
-    func getPointTo(_ direction: float3, positionh: float3) -> SCNVector3 {
-         return SCNVector3(positionh + direction * speed)
     }
     
 }
