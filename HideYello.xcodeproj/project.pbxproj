@@ -12,6 +12,11 @@
 		AF5162282408D8670043E999 /* TargetNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF5162272408D8670043E999 /* TargetNode.swift */; };
 		AFCBA0512406880C000645AD /* ScoreBoard.swift in Sources */ = {isa = PBXBuildFile; fileRef = AFCBA0502406880C000645AD /* ScoreBoard.swift */; };
 		AFCBA0532406929F000645AD /* Bomb.swift in Sources */ = {isa = PBXBuildFile; fileRef = AFCBA0522406929F000645AD /* Bomb.swift */; };
+		AFDF0C81250A284C00E85E9A /* MapViewControllerVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = AFDF0C80250A284C00E85E9A /* MapViewControllerVC.swift */; };
+		AFDF0C83250A285C00E85E9A /* AppDelegat.swift in Sources */ = {isa = PBXBuildFile; fileRef = AFDF0C82250A285C00E85E9A /* AppDelegat.swift */; };
+		AFDF0C85250A288D00E85E9A /* LocalNotificationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = AFDF0C84250A288D00E85E9A /* LocalNotificationManager.swift */; };
+		AFDF0C87250A28BB00E85E9A /* UIApplication.swift in Sources */ = {isa = PBXBuildFile; fileRef = AFDF0C86250A28BB00E85E9A /* UIApplication.swift */; };
+		AFDF0C89250A28CC00E85E9A /* Defaults.swift in Sources */ = {isa = PBXBuildFile; fileRef = AFDF0C88250A28CC00E85E9A /* Defaults.swift */; };
 		AFFF56BC2404FA7E00250496 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = AFFF56BB2404FA7E00250496 /* AppDelegate.swift */; };
 		AFFF56BE2404FA7E00250496 /* art.scnassets in Resources */ = {isa = PBXBuildFile; fileRef = AFFF56BD2404FA7E00250496 /* art.scnassets */; };
 		AFFF56C02404FA7E00250496 /* GameViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = AFFF56BF2404FA7E00250496 /* GameViewController.swift */; };
@@ -36,6 +41,11 @@
 		AFCBA0502406880C000645AD /* ScoreBoard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScoreBoard.swift; sourceTree = "<group>"; };
 		AFCBA0522406929F000645AD /* Bomb.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Bomb.swift; sourceTree = "<group>"; };
 		AFD67718240E370D00654FE1 /* HideYello.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = HideYello.entitlements; sourceTree = "<group>"; };
+		AFDF0C80250A284C00E85E9A /* MapViewControllerVC.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MapViewControllerVC.swift; sourceTree = "<group>"; };
+		AFDF0C82250A285C00E85E9A /* AppDelegat.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = AppDelegat.swift; path = ../../../../Documents/SAProjects/RXVVM/RXVVM/AppDelegat.swift; sourceTree = "<group>"; };
+		AFDF0C84250A288D00E85E9A /* LocalNotificationManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LocalNotificationManager.swift; sourceTree = "<group>"; };
+		AFDF0C86250A28BB00E85E9A /* UIApplication.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UIApplication.swift; sourceTree = "<group>"; };
+		AFDF0C88250A28CC00E85E9A /* Defaults.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Defaults.swift; sourceTree = "<group>"; };
 		AFFF56B82404FA7E00250496 /* HideYello.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = HideYello.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		AFFF56BB2404FA7E00250496 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		AFFF56BD2404FA7E00250496 /* art.scnassets */ = {isa = PBXFileReference; lastKnownFileType = wrapper.scnassets; path = art.scnassets; sourceTree = "<group>"; };
@@ -86,9 +96,14 @@
 			isa = PBXGroup;
 			children = (
 				AFD67718240E370D00654FE1 /* HideYello.entitlements */,
+				AFDF0C84250A288D00E85E9A /* LocalNotificationManager.swift */,
+				AFDF0C86250A28BB00E85E9A /* UIApplication.swift */,
+				AFDF0C82250A285C00E85E9A /* AppDelegat.swift */,
+				AFDF0C88250A28CC00E85E9A /* Defaults.swift */,
 				AFFF56E324052D8F00250496 /* goli.jpeg */,
 				AFFF56DB2405282000250496 /* Fire.swift */,
 				AFFF56D92405255800250496 /* LightNode.swift */,
+				AFDF0C80250A284C00E85E9A /* MapViewControllerVC.swift */,
 				AFFF56D72405223500250496 /* CameraNode.swift */,
 				AFFF56D124050B0900250496 /* GameView.swift */,
 				AFFF56CF2405035100250496 /* FloorNode.swift */,
@@ -190,14 +205,19 @@
 				AF4B967824065BF7007CD4A4 /* Coin.swift in Sources */,
 				AF5162282408D8670043E999 /* TargetNode.swift in Sources */,
 				AFCBA0512406880C000645AD /* ScoreBoard.swift in Sources */,
+				AFDF0C85250A288D00E85E9A /* LocalNotificationManager.swift in Sources */,
 				AFFF56D82405223500250496 /* CameraNode.swift in Sources */,
+				AFDF0C87250A28BB00E85E9A /* UIApplication.swift in Sources */,
 				AFFF56D624050C3200250496 /* Ship.swift in Sources */,
 				AFFF56D02405035100250496 /* FloorNode.swift in Sources */,
 				AFFF56D224050B0900250496 /* GameView.swift in Sources */,
+				AFDF0C81250A284C00E85E9A /* MapViewControllerVC.swift in Sources */,
 				AFFF56D424050BDB00250496 /* extension.swift in Sources */,
 				AFFF56DC2405282000250496 /* Fire.swift in Sources */,
 				AFFF56BC2404FA7E00250496 /* AppDelegate.swift in Sources */,
 				AFFF56E624054A9300250496 /* BulletNode.swift in Sources */,
+				AFDF0C89250A28CC00E85E9A /* Defaults.swift in Sources */,
+				AFDF0C83250A285C00E85E9A /* AppDelegat.swift in Sources */,
 				AFCBA0532406929F000645AD /* Bomb.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
