@@ -17,6 +17,7 @@
 		AFDF0C85250A288D00E85E9A /* LocalNotificationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = AFDF0C84250A288D00E85E9A /* LocalNotificationManager.swift */; };
 		AFDF0C87250A28BB00E85E9A /* UIApplication.swift in Sources */ = {isa = PBXBuildFile; fileRef = AFDF0C86250A28BB00E85E9A /* UIApplication.swift */; };
 		AFDF0C89250A28CC00E85E9A /* Defaults.swift in Sources */ = {isa = PBXBuildFile; fileRef = AFDF0C88250A28CC00E85E9A /* Defaults.swift */; };
+		AFDF0C8C250A5F5300E85E9A /* AudioPlayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = AFDF0C8B250A5F5300E85E9A /* AudioPlayer.swift */; };
 		AFFF56BC2404FA7E00250496 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = AFFF56BB2404FA7E00250496 /* AppDelegate.swift */; };
 		AFFF56BE2404FA7E00250496 /* art.scnassets in Resources */ = {isa = PBXBuildFile; fileRef = AFFF56BD2404FA7E00250496 /* art.scnassets */; };
 		AFFF56C02404FA7E00250496 /* GameViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = AFFF56BF2404FA7E00250496 /* GameViewController.swift */; };
@@ -46,6 +47,7 @@
 		AFDF0C84250A288D00E85E9A /* LocalNotificationManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LocalNotificationManager.swift; sourceTree = "<group>"; };
 		AFDF0C86250A28BB00E85E9A /* UIApplication.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UIApplication.swift; sourceTree = "<group>"; };
 		AFDF0C88250A28CC00E85E9A /* Defaults.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Defaults.swift; sourceTree = "<group>"; };
+		AFDF0C8B250A5F5300E85E9A /* AudioPlayer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioPlayer.swift; sourceTree = "<group>"; };
 		AFFF56B82404FA7E00250496 /* HideYello.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = HideYello.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		AFFF56BB2404FA7E00250496 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		AFFF56BD2404FA7E00250496 /* art.scnassets */ = {isa = PBXFileReference; lastKnownFileType = wrapper.scnassets; path = art.scnassets; sourceTree = "<group>"; };
@@ -122,6 +124,7 @@
 				AFCBA0522406929F000645AD /* Bomb.swift */,
 				AF2A13D22407A77200221A55 /* GameOverVC.swift */,
 				AF5162272408D8670043E999 /* TargetNode.swift */,
+				AFDF0C8B250A5F5300E85E9A /* AudioPlayer.swift */,
 			);
 			path = HideYello;
 			sourceTree = "<group>";
@@ -219,6 +222,7 @@
 				AFDF0C89250A28CC00E85E9A /* Defaults.swift in Sources */,
 				AFDF0C83250A285C00E85E9A /* AppDelegat.swift in Sources */,
 				AFCBA0532406929F000645AD /* Bomb.swift in Sources */,
+				AFDF0C8C250A5F5300E85E9A /* AudioPlayer.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -75,3 +75,41 @@ class ShipNode : SCNNode {
     }
     
 }
+
+
+
+@IBOutlet var gestureRecognizer: UIPanGestureRecognizer!
+var translation: CGPoint!
+var startPosition: CGPoint! //Start position for the gesture transition
+var originalHeight: CGFloat = 0 // Initial Height for the UIView
+var difference: CGFloat!
+
+override func viewDidLoad() {
+    super.viewDidLoad()
+    originalHeight = self.view.frame.height
+}
+
+@IBAction func viewDidDragged(_ sender: UIPanGestureRecognizer) {
+    
+    if sender.state == .began {
+        startPosition = gestureRecognizer.location(in: self.view) // the postion at which PanGestue Started
+    }
+    
+    if sender.state == .began || sender.state == .changed {
+        translation = sender.translation(in: self.view)
+        sender.setTranslation(CGPoint(x: 0.0, y: 0.0), in: self.view)
+        let endPosition = sender.location(in: self.view)
+        
+        difference = endPosition.y - startPosition.y
+        var newFrame = self.view.frame
+        newFrame.origin.x = self.view.frame.origin.x
+        newFrame.origin.y = self.view.frame.origin.y + difference //Gesture Moving Upward will produce a negative value for difference
+        newFrame.size.width = self.view.frame.size.width
+        newFrame.size.height = self.view.frame.size.height - difference //Gesture Moving Upward will produce a negative value for difference
+        self.view.frame = newFrame
+    }
+    
+    if sender.state == .ended || sender.state == .cancelled {
+        //Do Something
+    }
+}
